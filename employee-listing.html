@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Listing</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header, footer {
+      background-color: #333;
+      color: white;
+      padding: 10px 20px;
+    }
+
+    header h1, footer p {
+      margin: 0;
+    }
+
+    .container {
+      flex: 1;
+      padding: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f4f4f4;
+    }
+
+    .pagination {
+      text-align: center;
+    }
+
+    .pagination button {
+      padding: 5px 10px;
+      margin: 0 5px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .pagination button:disabled {
+      background-color: #ddd;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Employee Listing</h1>
+  </header>
+
+  <div class="container">
+    <table id="employeeTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Position</th>
+          <th>About</th>
+          <th>Joining Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Employee rows will be dynamically populated here -->
+      </tbody>
+    </table>
+    <div class="pagination">
+      <button id="prevBtn" disabled>Previous</button>
+      <button id="nextBtn" disabled>Next</button>
+    </div>
+  </div>
+
+  <footer>
+    <p>© Your Name</p>
+  </footer>
+
+  <script>
+    const employeesPerPage = 5;
+    const tableBody = document.querySelector('#employeeTable tbody');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    let employees = JSON.parse(localStorage.getItem('employees')) || [];
+    let currentPage = 1;
+
+    function renderEmployees() {
+      const start = (currentPage - 1) * employeesPerPage;
+      const end = start + employeesPerPage;
+      const paginatedEmployees = employees.slice(start, end);
+
+      tableBody.innerHTML = '';
+
+      paginatedEmployees.forEach((employee, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${employee.name}</td>
+          <td>${employee.position}</td>
+          <td>${employee.about}</td>
+          <td>${employee.joining_date}</td>
+          <td><button onclick="deleteEmployee(${start + index})">Delete</button></td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      prevBtn.disabled = currentPage === 1;
+      nextBtn.disabled = end >= employees.length;
+    }
+
+    function deleteEmployee(index) {
+      employees.splice(index, 1);
+      localStorage.setItem('employees', JSON.stringify(employees));
+      renderEmployees();
+    }
+
+    prevBtn.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderEmployees();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentPage * employeesPerPage < employees.length) {
+        currentPage++;
+        renderEmployees();
+      }
+    });
+
+    renderEmployees();
+  </script>
+</body>
+</html>
